@@ -1,1 +1,1 @@
-https://www.google.com/, false
+https://google.com, true, https://www.google.com/

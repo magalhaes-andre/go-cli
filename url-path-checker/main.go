@@ -16,16 +16,11 @@ const resultFilePermissions = 0666
 
 func main() {
 	resultsFile := resultsFile(resultFileName, resultFilePermissions)
-	urlList := readUrlsFromFile()
-	for _, url := range urlList {
-		ping(url, resultsFile)
-	}
-
+	readUrlsFromFile(resultsFile)
 }
 
-func readUrlsFromFile() []string {
+func readUrlsFromFile(resultsFile os.File) {
 	file, err := os.Open(filePath)
-	var urls []string
 	if err != nil {
 		fmt.Println("There was an error while trying to read the requested file:")
 		fmt.Println("File Path: ", filePath)
@@ -35,6 +30,7 @@ func readUrlsFromFile() []string {
 	scanner := bufio.NewScanner(file)
 	for scanner.Scan() {
 		line := scanner.Text()
+		ping(line, resultsFile)
 
 		if err == scanner.Err() {
 			break
@@ -44,10 +40,7 @@ func readUrlsFromFile() []string {
 			fmt.Println("There was an issue while reading the current line: ", line)
 			fmt.Println("The error was: ", err)
 		}
-
-		urls = append(urls, line)
 	}
-	return urls
 }
 
 func ping(url string, resultsFile os.File) {
