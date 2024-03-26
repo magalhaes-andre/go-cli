@@ -18,6 +18,7 @@ const resultFilePermissions = 0666
 func main() {
 	urls := readUrlsFromFile()
 	resultsUrls := pingUrls(urls)
+	urls = nil
 	fmt.Println("All urls have been reached, around " + strconv.Itoa(len((resultsUrls))) + " entries")
 	fmt.Println("Starting to write csv...")
 	resultsFile := resultsFile(resultFileName, resultFilePermissions)
