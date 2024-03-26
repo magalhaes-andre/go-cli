@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"io/fs"
 	"net/http"
 	"os"
 	"strconv"
@@ -15,11 +14,10 @@ const resultFileName = "testedResults.txt"
 const resultFilePermissions = 0666
 
 func main() {
-	resultsFile := resultsFile(resultFileName, resultFilePermissions)
-	readUrlsFromFile(resultsFile)
+	readUrlsFromFile()
 }
 
-func readUrlsFromFile(resultsFile os.File) {
+func readUrlsFromFile() {
 	file, err := os.Open(filePath)
 	if err != nil {
 		fmt.Println("There was an error while trying to read the requested file:")
@@ -27,25 +25,18 @@ func readUrlsFromFile(resultsFile os.File) {
 		fmt.Println("Error: ", err)
 	}
 	defer file.Close()
+	buf := []byte{}
 	scanner := bufio.NewScanner(file)
+	scanner.Buffer(buf, 2048*1024)
 	for scanner.Scan() {
-		line := scanner.Text()
-		ping(line, resultsFile)
+		ping(scanner.Text())
 	}
-
-	if err == scanner.Err() {
-		fmt.Println(err)
-	}
-
-	if err != nil {
-		fmt.Println("The error was: ", err)
-	}
-
 }
 
-func ping(url string, resultsFile os.File) {
+func ping(url string) {
 	trimmedUrl := strings.TrimSpace(url)
 	response, error := http.Get(strings.TrimSpace(url))
+	resultsFile, _ := os.Open(resultFileName)
 	if error == nil && response.StatusCode == http.StatusOK || response.StatusCode == http.StatusUnauthorized {
 		fmt.Println(strconv.Itoa(response.StatusCode) + " Response on " + url + "\r\n")
 		responseURL := response.Request.URL.String()
@@ -56,7 +47,10 @@ func ping(url string, resultsFile os.File) {
 		fmt.Println("Error Response on " + response.Request.URL.String() + "\r\n")
 		resultsFile.WriteString(trimmedUrl + ", " + "Error " + strconv.Itoa(response.StatusCode) + ", " + responseURL + "\r\n")
 	}
+	resultsFile.Close()
 }
+
+/*
 func resultsFile(fileName string, filePermission fs.FileMode) os.File {
 	os.Remove(fileName)
 	resultsFile, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, filePermission)
@@ -66,3 +60,4 @@ func resultsFile(fileName string, filePermission fs.FileMode) os.File {
 	}
 	return *resultsFile
 }
+*/
