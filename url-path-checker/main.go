@@ -8,6 +8,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const filePath = "./resources/urls.txt"
@@ -15,12 +16,14 @@ const resultFileName = "./resources/testedResults.txt"
 const resultFilePermissions = 0666
 
 func main() {
-	resultsFile := resultsFile(resultFileName, resultFilePermissions)
 	urls := readUrlsFromFile()
-	for index, url := range urls {
-		fmt.Println(index)
-		ping(url, resultsFile)
-	}
+	resultsUrls := pingUrls(urls)
+	fmt.Println("All urls have been reached, around " + strconv.Itoa(len((resultsUrls))) + " entries")
+	fmt.Println("Starting to write csv...")
+	resultsFile := resultsFile(resultFileName, resultFilePermissions)
+	resultsFile.WriteString(strings.Join(resultsUrls, "\n"))
+	resultsFile.Close()
+	time.Sleep(5 * time.Second)
 
 }
 
@@ -41,21 +44,27 @@ func readUrlsFromFile() []string {
 	file.Close()
 	return urls
 }
-
-func ping(url string, resultsFile os.File) {
-	trimmedUrl := strings.TrimSpace(url)
-	response, error := http.Get(strings.TrimSpace(url))
-	if error == nil && response.StatusCode == http.StatusOK || response.StatusCode == http.StatusUnauthorized {
-		fmt.Println(strconv.Itoa(response.StatusCode) + " Response on " + url + "\r\n")
-		responseURL := response.Request.URL.String()
-		hasRedirect := strconv.FormatBool(strings.Compare(trimmedUrl, responseURL) != 0)
-		resultsFile.WriteString(trimmedUrl + ", " + hasRedirect + ", " + responseURL + "\r\n")
-	} else {
-		responseURL := response.Request.URL.String()
-		fmt.Println("Error Response on " + response.Request.URL.String() + "\r\n")
-		resultsFile.WriteString(trimmedUrl + ", " + "Error " + strconv.Itoa(response.StatusCode) + ", " + responseURL + "\r\n")
+func pingUrls(urls []string) []string {
+	fmt.Println(strconv.Itoa(len(urls)) + " Entries have been loaded, calling them now...")
+	var urlsResults []string
+	for index, url := range urls {
+		fmt.Println(index)
+		trimmedUrl := strings.TrimSpace(url)
+		response, error := http.Get(strings.TrimSpace(url))
+		if error == nil && response.StatusCode == http.StatusOK || response.StatusCode == http.StatusUnauthorized {
+			fmt.Println(strconv.Itoa(response.StatusCode) + " Response on " + url + "\r\n")
+			responseURL := response.Request.URL.String()
+			hasRedirect := strconv.FormatBool(strings.Compare(trimmedUrl, responseURL) != 0)
+			urlsResults = append(urlsResults, trimmedUrl+", "+hasRedirect+", "+responseURL+"\r\n")
+		} else {
+			responseURL := response.Request.URL.String()
+			fmt.Println("Error Response on " + response.Request.URL.String() + "\r\n")
+			urlsResults = append(urlsResults, trimmedUrl+", "+"Error "+strconv.Itoa(response.StatusCode)+", "+responseURL+"\r\n")
+		}
 	}
+	return urlsResults
 }
+
 func resultsFile(fileName string, filePermission fs.FileMode) os.File {
 	os.Remove(fileName)
 	resultsFile, err := os.OpenFile(fileName, os.O_RDWR|os.O_CREATE|os.O_APPEND, filePermission)
