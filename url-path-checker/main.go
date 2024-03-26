@@ -60,7 +60,7 @@ func ping(url string, resultsFile os.File) {
 		fmt.Println("Error on ping method", error)
 	}
 	if error == nil && response.StatusCode == http.StatusOK || response.StatusCode == http.StatusUnauthorized {
-		fmt.Println("OK Response on " + url + "\r\n")
+		fmt.Println(strconv.Itoa(response.StatusCode) + " Response on " + url + "\r\n")
 		responseURL := response.Request.URL.String()
 		hasRedirect := strconv.FormatBool(strings.Compare(url, responseURL) == 0)
 		resultsFile.WriteString(responseURL + ", " + hasRedirect + "\r\n")
