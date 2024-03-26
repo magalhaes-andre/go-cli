@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"io"
 	"io/fs"
 	"net/http"
 	"os"
@@ -32,12 +31,12 @@ func readUrlsFromFile() []string {
 		fmt.Println("File Path: ", filePath)
 		fmt.Println("Error: ", err)
 	}
+	defer file.Close()
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
 
-	reader := bufio.NewReader(file)
-	for {
-		line, err := reader.ReadString('\n')
-
-		if err == io.EOF {
+		if err == scanner.Err() {
 			break
 		}
 
@@ -48,7 +47,6 @@ func readUrlsFromFile() []string {
 
 		urls = append(urls, line)
 	}
-	defer file.Close()
 	return urls
 }
 
@@ -63,7 +61,7 @@ func ping(url string, resultsFile os.File) {
 	} else {
 		responseURL := response.Request.URL.String()
 		fmt.Println("Error Response on " + response.Request.URL.String() + "\r\n")
-		resultsFile.WriteString(url + ", " + "Error " + strconv.Itoa(response.StatusCode) + ", " + responseURL + "\r\n")
+		resultsFile.WriteString(trimmedUrl + ", " + "Error " + strconv.Itoa(response.StatusCode) + ", " + responseURL + "\r\n")
 	}
 }
 func resultsFile(fileName string, filePermission fs.FileMode) os.File {
