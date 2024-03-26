@@ -52,7 +52,9 @@ func pingUrls(urls []string) []string {
 		fmt.Println(index)
 		trimmedUrl := strings.TrimSpace(url)
 		response, error := http.Get(strings.TrimSpace(url))
-		if error == nil && response.StatusCode == http.StatusOK || response.StatusCode == http.StatusUnauthorized {
+		if error != nil {
+			urlsResults = append(urlsResults, trimmedUrl+", "+"ERROR ON CALL "+"\r\n")
+		} else if error == nil && response.StatusCode == http.StatusOK || response.StatusCode == http.StatusUnauthorized {
 			fmt.Println(strconv.Itoa(response.StatusCode) + " Response on " + url + "\r\n")
 			responseURL := response.Request.URL.String()
 			hasRedirect := strconv.FormatBool(strings.Compare(trimmedUrl, responseURL) != 0)
