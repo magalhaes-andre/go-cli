@@ -31,16 +31,17 @@ func readUrlsFromFile(resultsFile os.File) {
 	for scanner.Scan() {
 		line := scanner.Text()
 		ping(line, resultsFile)
-
-		if err == scanner.Err() {
-			break
-		}
-
-		if err != nil {
-			fmt.Println("There was an issue while reading the current line: ", line)
-			fmt.Println("The error was: ", err)
-		}
 	}
+
+	if err == scanner.Err() {
+		fmt.Println(err)
+	}
+
+	if err != nil {
+		fmt.Println("There was an issue while reading the current line: ", line)
+		fmt.Println("The error was: ", err)
+	}
+
 }
 
 func ping(url string, resultsFile os.File) {
