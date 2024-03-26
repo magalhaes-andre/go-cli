@@ -38,7 +38,6 @@ func readUrlsFromFile(resultsFile os.File) {
 	}
 
 	if err != nil {
-		fmt.Println("There was an issue while reading the current line: ", line)
 		fmt.Println("The error was: ", err)
 	}
 
