@@ -58,14 +58,18 @@ func ping(url string, resultsFile os.File) {
 		fmt.Printf("Error on ping method", error)
 	}
 	if error == nil && response.StatusCode == http.StatusOK {
-		fmt.Printf("I'm here 1")
+		fmt.Printf("OK Response on " + url + "/n")
 		responseURL := response.Request.URL.String()
 		hasRedirect := strconv.FormatBool(strings.Compare(url, responseURL) == 0)
-		resultsFile.WriteString(responseURL + ", " + hasRedirect)
+		fmt.Println("url: " + url)
+		fmt.Println("responseUrl: " + responseURL)
+		fmt.Println("status: " + strconv.Itoa(response.StatusCode))
+		fmt.Println("redirect: " + hasRedirect)
+		resultsFile.WriteString(responseURL + ", " + hasRedirect + "/n")
 	} else {
-		fmt.Printf("I'm here 2")
+		fmt.Printf("Error Response on " + response.Request.URL.String() + "/n")
 		responseURL := response.Request.URL.String()
-		resultsFile.WriteString(responseURL + ", " + "Error " + strconv.Itoa(response.StatusCode))
+		resultsFile.WriteString(responseURL + ", " + "Error " + strconv.Itoa(response.StatusCode) + "/n")
 	}
 }
 func resultsFile(fileName string, filePermission fs.FileMode) os.File {
