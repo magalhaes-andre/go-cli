@@ -53,14 +53,13 @@ func readUrlsFromFile() []string {
 }
 
 func ping(url string, resultsFile os.File) {
+	trimmedUrl := strings.TrimSpace(url)
 	response, error := http.Get(strings.TrimSpace(url))
-	if error != nil {
-		fmt.Println("Error on ping method", error)
-	}
 	if error == nil && response.StatusCode == http.StatusOK || response.StatusCode == http.StatusUnauthorized {
 		fmt.Println(strconv.Itoa(response.StatusCode) + " Response on " + url + "\r\n")
 		responseURL := response.Request.URL.String()
-		resultsFile.WriteString(url + ", " + responseURL + "\r\n")
+		hasRedirect := strconv.FormatBool(strings.Compare(trimmedUrl, responseURL) != 0)
+		resultsFile.WriteString(trimmedUrl + ", " + hasRedirect + "\r\n")
 	} else {
 		fmt.Println("Error Response on " + response.Request.URL.String() + "\r\n")
 		resultsFile.WriteString(url + ", " + "Error " + strconv.Itoa(response.StatusCode) + "\r\n")
