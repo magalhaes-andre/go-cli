@@ -59,10 +59,11 @@ func ping(url string, resultsFile os.File) {
 		fmt.Println(strconv.Itoa(response.StatusCode) + " Response on " + url + "\r\n")
 		responseURL := response.Request.URL.String()
 		hasRedirect := strconv.FormatBool(strings.Compare(trimmedUrl, responseURL) != 0)
-		resultsFile.WriteString(trimmedUrl + ", " + hasRedirect + "\r\n")
+		resultsFile.WriteString(trimmedUrl + ", " + hasRedirect + ", " + responseURL + "\r\n")
 	} else {
+		responseURL := response.Request.URL.String()
 		fmt.Println("Error Response on " + response.Request.URL.String() + "\r\n")
-		resultsFile.WriteString(url + ", " + "Error " + strconv.Itoa(response.StatusCode) + "\r\n")
+		resultsFile.WriteString(url + ", " + "Error " + strconv.Itoa(response.StatusCode) + ", " + responseURL + "\r\n")
 	}
 }
 func resultsFile(fileName string, filePermission fs.FileMode) os.File {
