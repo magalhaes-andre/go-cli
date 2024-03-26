@@ -48,7 +48,7 @@ func readUrlsFromFile() []string {
 
 		urls = append(urls, line)
 	}
-	file.Close()
+	defer file.Close()
 	return urls
 }
 
