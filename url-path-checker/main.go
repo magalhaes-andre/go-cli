@@ -9,6 +9,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const filePath = "./resources/urls.txt"
@@ -20,6 +21,7 @@ func main() {
 	urlList := readUrlsFromFile()
 	for _, url := range urlList {
 		ping(url, resultsFile)
+		time.Sleep(2 * time.Second)
 	}
 
 }
@@ -58,18 +60,18 @@ func ping(url string, resultsFile os.File) {
 		fmt.Printf("Error on ping method", error)
 	}
 	if error == nil && response.StatusCode == http.StatusOK {
-		fmt.Printf("OK Response on " + url + "/n")
+		fmt.Printf("OK Response on " + url + "\n")
 		responseURL := response.Request.URL.String()
 		hasRedirect := strconv.FormatBool(strings.Compare(url, responseURL) == 0)
 		fmt.Println("url: " + url)
 		fmt.Println("responseUrl: " + responseURL)
 		fmt.Println("status: " + strconv.Itoa(response.StatusCode))
 		fmt.Println("redirect: " + hasRedirect)
-		resultsFile.WriteString(responseURL + ", " + hasRedirect + "/n")
+		resultsFile.WriteString(responseURL + ", " + hasRedirect + "\n")
 	} else {
-		fmt.Printf("Error Response on " + response.Request.URL.String() + "/n")
+		fmt.Printf("Error Response on " + response.Request.URL.String() + "\n")
 		responseURL := response.Request.URL.String()
-		resultsFile.WriteString(responseURL + ", " + "Error " + strconv.Itoa(response.StatusCode) + "/n")
+		resultsFile.WriteString(responseURL + ", " + "Error " + strconv.Itoa(response.StatusCode) + "\n")
 	}
 }
 func resultsFile(fileName string, filePermission fs.FileMode) os.File {
